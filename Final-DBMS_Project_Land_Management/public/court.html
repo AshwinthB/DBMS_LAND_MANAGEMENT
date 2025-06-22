@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../styles.css"> <!-- Go one level up to access global CSS -->
+    <style>
+        .admin-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .admin-title {
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 2rem;
+        }
+
+        .admin-btn {
+            padding: 1rem;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background-color: #63b3ed;
+            color: #000;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+
+        .admin-btn:hover {
+            background-color: #4299e1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container admin-container">
+        <h1 class="admin-title">Welcome to Court Page</h1>
+        <div class="button-grid">
+          
+            <button class="admin-btn" onclick="navigate('admin/case.html')">case</button>
+            <button class="admin-btn" onclick="navigate('normal_user.html')">view</button>
+        </div>
+    </div>
+
+    <script>
+        function navigate(page) {
+            window.location.href = `/${page}`; // points to /admin/xyz.html under public
+        }
+    </script>
+</body>
+</html>

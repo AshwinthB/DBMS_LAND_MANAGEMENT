@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Government Schemes</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    .scheme-container {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .scheme-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: #4fd1c5;
+    }
+
+    .scheme-criteria {
+      margin-bottom: 1rem;
+      font-size: 16px;
+    }
+
+    .scheme-container button {
+      background-color: #4fd1c5;
+      color: black;
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .scheme-container button:hover {
+      background-color: #38b2ac;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 style="text-align: center;">Available Government Schemes</h2>
+    <div id="scheme-list"></div>
+  </div>
+
+  <script>
+    async function fetchSchemes() {
+      const res = await fetch("/get-schemes");
+      const data = await res.json();
+      const container = document.getElementById("scheme-list");
+
+      data.forEach(scheme => {
+        const div = document.createElement("div");
+        div.className = "scheme-container";
+
+        const title = document.createElement("div");
+        title.className = "scheme-title";
+        title.textContent = scheme.g_name;
+
+        const criteria = document.createElement("div");
+        criteria.className = "scheme-criteria";
+        criteria.textContent = "Eligibility: " + scheme.elegible;
+
+        const button = document.createElement("button");
+        const page = scheme.g_name.toLowerCase().replace(/\s+/g, '') + ".html";
+        button.textContent = "View Details";
+        button.onclick = () => window.location.href = page;
+
+        div.appendChild(title);
+        div.appendChild(criteria);
+        div.appendChild(button);
+        container.appendChild(div);
+      });
+    }
+
+    fetchSchemes();
+  </script>
+</body>
+</html>

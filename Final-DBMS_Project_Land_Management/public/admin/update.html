@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Update Owner Details</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #232526, #414345);
+      color: #fff;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow-y: auto;
+    }
+
+    .form-box {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 30px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #00e676;
+    }
+
+    label {
+      margin-top: 15px;
+      display: block;
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: none;
+      border-radius: 6px;
+      background-color: #2c2c2c;
+      color: #fff;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      background: #00c853;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #00e676;
+    }
+
+    .output {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .output.success {
+      color: #00e676;
+    }
+
+    .output.error {
+      color: #ff5252;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-box">
+    <h2>Update Owner Details</h2>
+    <form id="updateForm">
+      <label>Owner ID:</label>
+      <input type="number" id="ownerId" required />
+
+      <label>Land ID (autofilled):</label>
+      <input type="number" id="landId" readonly />
+
+      <label>Owner Name:</label>
+      <input type="text" id="ownerName" required />
+
+      <label>Gender:</label>
+      <select id="gender" required>
+        <option value="">Select</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <label>Mobile Number:</label>
+      <input type="text" id="mobile" required />
+
+      <label>Willing:</label>
+      <select id="willing" required>
+        <option value="">Select</option>
+        <option value="none">None</option>
+        <option value="buy">Buy</option>
+        <option value="rent">Rent</option>
+      </select>
+      
+
+      <button type="submit">Update</button>
+    </form>
+    <div class="output" id="resultMessage"></div>
+  </div>
+
+  <script>
+      const urlParams = new URLSearchParams(window.location.search);
+  const ownerId = urlParams.get('owner_id');
+
+  if (ownerId) {
+    document.getElementById("ownerId").value = ownerId;
+    document.getElementById("ownerId").readOnly = true;
+
+    // Auto-fetch land ID immediately
+    fetch(`/check-land-land/${ownerId}`)
+      .then(res => res.json())
+      .then(data => {
+        const landIdInput = document.getElementById("landId");
+        const msg = document.getElementById("resultMessage");
+
+        if (data.l_id) {
+          landIdInput.value = data.l_id;
+          msg.textContent = "";
+          msg.className = "output";
+        } else {
+          landIdInput.value = "";
+          msg.textContent = data.message || "No land found or land sold.";
+          msg.className = "output error";
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        document.getElementById("landId").value = "";
+        const msg = document.getElementById("resultMessage");
+        msg.textContent = "Server error while checking land.";
+        msg.className = "output error";
+      });
+  }
+
+    document.getElementById("updateForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const ownerId = document.getElementById("ownerId").value;
+      const landId = document.getElementById("landId").value;
+
+      if (!landId) {
+        document.getElementById("resultMessage").textContent = "Cannot update, no land linked.";
+        document.getElementById("resultMessage").className = "output error";
+        return;
+      }
+
+      const updateData = {
+        o_id: ownerId,
+        o_name: document.getElementById("ownerName").value,
+        gender: document.getElementById("gender").value,
+        mobile: document.getElementById("mobile").value,
+        willing: document.getElementById("willing").value
+      };
+
+      fetch("/update-owner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData)
+      })
+        .then(res => res.json())
+        .then(data => {
+          const msg = document.getElementById("resultMessage");
+          if (data.success) {
+            msg.textContent = data.message || "Details updated successfully!";
+            msg.className = "output success";
+          } else {
+            msg.textContent = data.message || "Update failed.";
+            msg.className = "output error";
+          }
+        })
+        .catch(error => {
+          console.error("Update Error:", error);
+          const msg = document.getElementById("resultMessage");
+          msg.textContent = "Server error during update.";
+          msg.className = "output error";
+        });
+    });
+  </script>
+</body>
+</html>

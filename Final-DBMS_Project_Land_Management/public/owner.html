@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Owner Full Details</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #8e9eab, #eef2f3);
+      color: #333;
+      padding: 30px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .card {
+      max-width: 1000px;
+      margin: 20px auto;
+      overflow-x: auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+    #updateBtn {
+    display: block;
+    margin: 30px auto;
+    padding: 12px 24px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  #updateBtn:hover {
+    background-color: #0056b3;
+  }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="ownerCard">
+    <h2>Owner Details</h2>
+    <p>Loading...</p>
+  </div>
+
+  <div class="card" id="loanCard">
+    <h2>Loan Details</h2>
+    <p>Loading...</p>
+  </div>
+
+  <div class="card" id="caseCard">
+    <h2>Case Details</h2>
+    <p>Loading...</p>
+  </div>
+
+  <div class="card" id="addressCard">
+    <h2>Address Details</h2>
+    <p>Loading...</p>
+  </div>
+
+  <div class="card" id="landCard">
+    <h2>Land Details</h2>
+    <p>Loading...</p>
+  </div>
+  <button id="updateBtn">Update</button>
+
+
+  <a href="normal_user.html">← Back to Dashboard</a>
+
+  <script>
+    async function loadAllDetails() {
+      const params = new URLSearchParams(window.location.search);
+      const o_id = params.get("oid");
+
+      const ownerCard = document.getElementById("ownerCard");
+      const loanCard = document.getElementById("loanCard");
+      const caseCard = document.getElementById("caseCard");
+      const addressCard = document.getElementById("addressCard");
+      const landCard = document.getElementById("landCard");
+
+      try {
+        const [ownerRes, loanRes, caseRes, addrRes, landRes] = await Promise.all([
+          fetch(`/owner-details/${o_id}`),
+          fetch(`/loan-details/${o_id}`),
+          fetch(`/case-details/${o_id}`),
+          fetch(`/address-details/${o_id}`),
+          fetch(`/land-details/${o_id}`)
+        ]);
+
+        if (ownerRes.ok) {
+          const owner = await ownerRes.json();
+          ownerCard.innerHTML = `
+            <h2>Owner Details</h2>
+            <table>
+              <tr><th>Owner ID</th><th>Name</th><th>Gender</th><th>Mobile</th></tr>
+              <tr>
+                <td>${o_id}</td>
+                <td>${owner.o_name}</td>
+                <td>${owner.gender}</td>
+                <td>${owner.mobile}</td>
+              </tr>
+            </table>
+          `;
+        }
+
+        if (loanRes.ok) {
+          const loan = await loanRes.json();
+          loanCard.innerHTML = `
+            <h2>Loan Details</h2>
+            <table>
+              <tr><th>Loan ID</th><th>Loan Info</th><th>Status</th></tr>
+              <tr>
+                <td>${loan.lo_id}</td>
+                <td>${loan.loan_details}</td>
+                <td>${loan.loan_status}</td>
+              </tr>
+            </table>
+          `;
+        }
+
+        if (caseRes.ok) {
+          const caseData = await caseRes.json();
+          caseCard.innerHTML = `
+            <h2>Case Details</h2>
+            <table>
+              <tr><th>Case ID</th><th>Details</th><th>Status</th></tr>
+              <tr>
+                <td>${caseData.c_id}</td>
+                <td>${caseData.case_details}</td>
+                <td>${caseData.case_status}</td>
+              </tr>
+            </table>
+          `;
+        }
+
+        if (addrRes.ok) {
+          const addr = await addrRes.json();
+          addressCard.innerHTML = `
+            <h2>Address Details</h2>
+            <table>
+              <tr><th>Village</th><th>Taluk</th><th>District</th><th>Pincode</th><th>State</th><th>Nationality</th></tr>
+              <tr>
+                <td>${addr.village}</td>
+                <td>${addr.taluk}</td>
+                <td>${addr.district}</td>
+                <td>${addr.pincode}</td>
+                <td>${addr.state}</td>
+                <td>${addr.nationality}</td>
+              </tr>
+            </table>
+          `;
+        }
+
+        if (landRes.ok) {
+          const land = await landRes.json();
+          landCard.innerHTML = `
+            <h2>Land Details</h2>
+            <table>
+              <tr><th>Land ID</th><th>Type</th><th>Size</th><th>Price</th><th>willing</th><th>Survey No.</th></tr>
+              <tr>
+                <td>${land.l_id}</td>
+                <td>${land.land_type}</td>
+                <td>${land.land_size}</td>
+                <td>₹${land.land_price}</td>
+                 <td>${land.willing}</td>
+                <td>${land.survey}</td>
+              </tr>
+            </table>
+          `;
+        }
+      } catch (error) {
+        console.error("Error loading details:", error);
+      }
+      document.getElementById('updateBtn').addEventListener('click', () => {
+    window.location.href = `admin/update.html?owner_id=${o_id}`;
+  });
+    }
+
+    loadAllDetails();
+     // Replace with dynamic value if needed
+
+  
+
+  </script>
+
+</body>
+</html>

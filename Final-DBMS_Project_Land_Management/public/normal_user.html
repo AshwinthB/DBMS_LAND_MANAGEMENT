@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Land Listings - User View</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #8e9eab, #eef2f3);
+      color: #333;
+      padding: 30px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .search {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 250px;
+      font-size: 16px;
+    }
+
+    .table-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      overflow-x: auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    a button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    a button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h2>Available Land Listings</h2>
+
+  <div class="search">
+    <input type="text" id="searchInput" placeholder="Search by District..." />
+  </div>
+
+  <div class="table-container">
+    <table id="landTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Type</th>
+          <th>Size (acres)</th>
+          <th>Price</th>
+          <th>Survey No</th>
+          <th>District</th>
+          <th>Willing</th>
+
+          <th>Owner</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Filled dynamically -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    let allLands = [];
+
+    async function fetchLandDetails() {
+      const res = await fetch('/land-details');
+      const lands = await res.json();
+      allLands = lands;
+      displayLands(lands);
+    }
+
+    function displayLands(lands) {
+      const tbody = document.querySelector('#landTable tbody');
+      tbody.innerHTML = '';
+      lands.forEach(land => {
+        const row = `
+          <tr>
+            <td>${land.l_id}</td>
+            <td>${land.land_type}</td>
+            <td>${land.land_size}</td>
+            <td>${land.land_price}</td>
+            <td>${land.survey}</td>
+            <td>${land.district}</td>
+            <td>${land.willing}</td>
+            <td><a href="owner.html?oid=${land.o_id}"><button>${land.o_id}</button></a></td>
+          </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const filtered = allLands.filter(l => l.district.toLowerCase().includes(searchTerm));
+      displayLands(filtered);
+    });
+
+    fetchLandDetails();
+  </script>
+</body>
+</html>

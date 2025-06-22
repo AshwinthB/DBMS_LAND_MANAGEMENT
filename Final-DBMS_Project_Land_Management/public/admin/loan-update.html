@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Update Loan Details</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #2c5364, #203a43, #0f2027);
+      color: white;
+      padding: 20px;
+    }
+
+    .form-container {
+      background: #1e1e2f;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color: #00c6ff;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      width: 100%;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .success {
+      color: #00ff7f;
+    }
+
+    .error {
+      color: #ff6b6b;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Update Loan Details</h2>
+    <form id="loanForm">
+      <label for="o_id">Owner ID</label>
+      <input type="text" id="o_id" name="o_id" required>
+
+      <label for="lo_id">Loan ID (auto-filled)</label>
+      <input type="text" id="lo_id" name="lo_id" readonly required>
+
+      <button type="button" id="sendOtpBtn">Send OTP</button>
+      <input type="number" id="otp" name="otp" placeholder="Enter OTP" required style="display: none;" />
+
+      <label for="loan_details">Loan Details</label>
+      <input type="text" id="loan_details" name="loan_details" required>
+
+      <label for="loan_status">Loan Status</label>
+      <select id="loan_status" name="loan_status" required>
+        <option value="">Select</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+        <option value="pending">Pending</option>
+        <option value="completed">Completed</option>
+        <option value="inprogress">In Progress</option>
+      </select>
+
+      <button type="submit">Update Loan</button>
+      <div id="message" class="message"></div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("o_id").addEventListener("blur", function () {
+      const o_id = this.value;
+      if (o_id) {
+        fetch(`/check-land/${o_id}`)
+          .then(res => res.json())
+          .then(data => {
+            const msg = document.getElementById("message");
+            if (data.loan_id) {
+              document.getElementById("lo_id").value = data.loan_id;
+              msg.textContent = "";
+            } else {
+              document.getElementById("lo_id").value = "";
+              msg.textContent = data.message;
+              msg.className = "message error";
+            }
+          });
+      }
+    });
+
+
+    document.getElementById("sendOtpBtn").addEventListener("click", async () => {
+      const o_id = document.getElementById("o_id").value;
+      const msg = document.getElementById("message");
+
+      if (!o_id) {
+        msg.textContent = "Please enter Owner ID first.";
+        msg.className = "message error";
+        return;
+      }
+
+      // Fetch owner's email from the database
+      const emailRes = await fetch(`/get-owner-email/${o_id}`);
+      const emailData = await emailRes.json();
+      if (!emailRes.ok) {
+        msg.textContent = emailData.message || "Unable to fetch email.";
+        msg.className = "message error";
+        return;
+      }
+      currentEmail = emailData.email;
+
+      // Send OTP using your existing /send-otp endpoint
+      const otpRes = await fetch("/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: currentEmail })
+      });
+      const otpData = await otpRes.json();
+      if (otpRes.ok) {
+        msg.textContent = otpData.message;
+        msg.className = "message success";
+        document.getElementById("otp").style.display = "block";
+      } else {
+        msg.textContent = otpData.message || "Failed to send OTP.";
+        msg.className = "message error";
+      }
+    });
+
+
+    document.getElementById("loanForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!document.getElementById("lo_id").value) {
+        document.getElementById("message").textContent = "Please enter a valid Owner ID with land record.";
+        document.getElementById("message").className = "message error";
+        return;
+      }
+
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      const res = await fetch("/update-loan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      const msg = document.getElementById("message");
+      if (res.ok) {
+        msg.textContent = result.message;
+        msg.className = "message success";
+      } else {
+        msg.textContent = result.message || "An error occurred.";
+        msg.className = "message error";
+      }
+    });
+  </script>
+</body>
+</html>

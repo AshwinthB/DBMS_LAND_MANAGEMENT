@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Insert Owner & Land</title>
+  <style>
+    body {
+  background: linear-gradient(to right, #667eea, #764ba2);
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: white;
+  padding: 2rem;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.form-3col-wrapper {
+  max-width: 1200px;
+  margin: auto;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.form-3col {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.form-column {
+  flex: 1;
+  min-width: 250px;
+}
+
+.form-column h3 {
+  margin-bottom: 1rem;
+  color: #4fd1c5;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+input, select {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 6px;
+  margin-top: 5px;
+  border: none;
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+input:focus, select:focus {
+  outline: 2px solid #4fd1c5;
+}
+
+button {
+  width: 100%;
+  margin-top: 2rem;
+  padding: 1rem;
+  font-size: 18px;
+  font-weight: bold;
+  background-color: #4fd1c5;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #000;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background-color: #38b2ac;
+}
+
+#insert-message {
+  text-align: center;
+  margin-top: 1rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+@media screen and (max-width: 768px) {
+  .form-3col {
+    flex-direction: column;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <div class="form-3col-wrapper">
+    <h2>Insert Owner, Land & Address Details</h2>
+    <form class="form-3col" onsubmit="event.preventDefault(); submitData();">
+
+      <!-- Column 1: Owner -->
+      <div class="form-column">
+        <h3>Owner Details</h3>
+        <label>Owner ID</label>
+        <input type="number" id="o_id" required />
+        <label>Owner Name</label>
+        <input type="text" id="o_name" required />
+        <label>Gender</label>
+        <select id="gender" required>
+          <option value="">Select</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+        </select>
+        <label>Mobile</label>
+        <input type="text" id="mobile" required />
+        <label>Email</label>
+<input type="email" id="mail" required />
+<button type="button" onclick="sendOTP()">Send OTP</button>
+
+<label>Enter OTP</label>
+<input type="number" id="otp" required />
+
+        
+      </div>
+
+      <!-- Column 2: Land -->
+      <div class="form-column">
+        <h3>Land Details</h3>
+        <label>Land ID</label>
+        <input type="number" id="l_id" required />
+        <label>Land Type</label>
+        <input type="text" id="land_type" required />
+        <label>Land Size</label>
+        <input type="text" id="land_size" required />
+        <label>Land Price</label>
+        <input type="number" step="0.01" id="land_price" required />
+        <label>Survey No.</label>
+        <input type="number" id="survey" required />
+        <label>Willing To</label>
+        <select id="willing" required>
+        <option value="">Select</option>
+        <option>Sell</option>
+        <option>Rent</option>
+        <option>None</option>
+</select>
+
+      </div>
+
+      <!-- Column 3: Address -->
+      <div class="form-column">
+        <h3>Address Details</h3>
+        <label>Village</label>
+        <input type="text" id="village" required />
+        <label>Taluk</label>
+        <input type="text" id="taluk" required />
+        <label>District</label>
+        <input type="text" id="district" required />
+        <label>Pincode</label>
+        <input type="text" id="pincode" required />
+        <label>State</label>
+        <input type="text" id="state" required />
+        <label>Nationality</label>
+        <input type="text" id="nationality" required />
+      </div>
+    </form>
+
+    <button onclick="submitData()">Insert</button>
+    <p id="insert-message"></p>
+  </div>
+
+  <script>
+    function sendOTP() {
+  const email = document.getElementById("mail").value;
+  if (!email) return alert("Please enter email first.");
+
+  fetch("/send-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message);
+    })
+    .catch(err => {
+      console.error("OTP send failed", err);
+    });
+}
+
+async function submitData() {
+  const data = {
+    o_id: document.getElementById("o_id").value,
+    o_name: document.getElementById("o_name").value,
+    gender: document.getElementById("gender").value,
+    mobile: document.getElementById("mobile").value,
+    email: document.getElementById("mail").value,
+    otp: document.getElementById("otp").value,
+
+    l_id: document.getElementById("l_id").value,
+    land_type: document.getElementById("land_type").value,
+    land_size: document.getElementById("land_size").value,
+    land_price: document.getElementById("land_price").value,
+    survey: document.getElementById("survey").value,
+    willing: document.getElementById("willing").value,
+
+    village: document.getElementById("village").value,
+    taluk: document.getElementById("taluk").value,
+    district: document.getElementById("district").value,
+    pincode: document.getElementById("pincode").value,
+    state: document.getElementById("state").value,
+    nationality: document.getElementById("nationality").value,
+  };
+
+  const response = await fetch("/insert-owner-land", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  const result = await response.json();
+  document.getElementById("insert-message").textContent = result.message;
+}
+
+  </script>
+</body>
+</html>

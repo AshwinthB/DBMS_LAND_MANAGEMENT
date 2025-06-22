@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Apply - SmallFarmBoost</title>
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Apply for SmallFarmBoost</h2>
+    <form id="schemeForm">
+      <input type="number" id="g1_id" placeholder="Scheme Application ID (g1_id)" required />
+      <input type="number" id="owner_id" placeholder="Owner ID" required />
+      <select id="benificier" required>
+        <option value="">Select Beneficiary</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+      <button type="submit">Apply</button>
+    </form>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    document.getElementById("schemeForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const g1_id = document.getElementById("g1_id").value;
+  const owner_id = document.getElementById("owner_id").value;
+  const benificier = document.getElementById("benificier").value;
+
+  const res = await fetch("/apply-scheme1", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ g1_id, owner_id, benificier }),
+  });
+
+  const result = await res.json();
+  const message = document.getElementById("message");
+  if (res.ok) {
+    message.innerHTML = `<strong style="color: green;">${result.message}</strong>`;
+  } else {
+    message.innerHTML = `<strong style="color: red;">${result.message}</strong>`;
+  }
+});
+
+  </script>
+</body>
+</html>

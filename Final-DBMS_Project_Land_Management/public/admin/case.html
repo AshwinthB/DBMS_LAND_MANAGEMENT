@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Update Case Details</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #2c5364, #203a43, #0f2027);
+      color: white;
+      padding: 20px;
+    }
+    .form-container {
+      background: #1e1e2f;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #00c6ff;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      width: 100%;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .success {
+      color: #00ff7f;
+    }
+    .error {
+      color: #ff6b6b;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Update Case Details</h2>
+    <form id="caseForm">
+      <input type="number" id="o_id" name="o_id" placeholder="Enter Owner ID" required />
+      <input type="number" id="c_id" name="c_id" placeholder="Case ID (Auto-filled)" readonly />
+      
+      <!-- OTP verification fields -->
+      <button type="button" id="sendOtpBtn">Send OTP</button>
+      <input type="number" id="otp" name="otp" placeholder="Enter OTP" required style="display: none;" />
+
+      <input type="text" name="case_details" placeholder="Enter Case Details" required />
+      <select name="case_status" required>
+        <option value="">Select Case Status</option>
+        <option value="inprogress">In Progress</option>
+        <option value="nocase">No Case</option>
+        <option value="completed">Completed</option>
+      </select>
+      <button type="submit">Update Case</button>
+      <div id="message" class="message"></div>
+    </form>
+  </div>
+  
+  <script>
+    let currentEmail = "";
+
+    // Fetch case id by checking for land and case existence
+    document.getElementById("o_id").addEventListener("blur", function () {
+      const o_id = this.value;
+      if (o_id) {
+        // Note: We use the updated backend route /check-land/:owner_id which now returns c_id
+        fetch(`/check-land-case/${o_id}`)
+          .then(res => res.json())
+          .then(data => {
+            const msg = document.getElementById("message");
+            if (data.c_id) {
+              document.getElementById("c_id").value = data.c_id;
+              msg.textContent = "";
+            } else {
+              document.getElementById("c_id").value = "";
+              msg.textContent = data.message;
+              msg.className = "message error";
+            }
+          });
+      }
+    });
+
+    // Send OTP for owner email (old owner's email auto-fetched)
+    document.getElementById("sendOtpBtn").addEventListener("click", async () => {
+      const o_id = document.getElementById("o_id").value;
+      const msg = document.getElementById("message");
+
+      if (!o_id) {
+        msg.textContent = "Please enter Owner ID first.";
+        msg.className = "message error";
+        return;
+      }
+
+      // Fetch owner's email from the database
+      const emailRes = await fetch(`/get-owner-email/${o_id}`);
+      const emailData = await emailRes.json();
+      if (!emailRes.ok) {
+        msg.textContent = emailData.message || "Unable to fetch email.";
+        msg.className = "message error";
+        return;
+      }
+      email = emailData.email;
+      console.log(email);
+
+      // Send OTP using your existing /send-otp endpoint
+      const otpRes = await fetch("/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email:email})
+      });
+      const otpData = await otpRes.json();
+      if (otpRes.ok) {
+        msg.textContent = otpData.message;
+        msg.className = "message success";
+        document.getElementById("otp").style.display = "block";
+      } else {
+        msg.textContent = otpData.message || "Failed to send OTP.";
+        msg.className = "message error";
+      }
+    });
+
+    // On form submission, verify OTP then update case
+    document.getElementById("caseForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      console.log('execute');
+      const msg = document.getElementById("message");
+
+      if (!document.getElementById("c_id").value) {
+        msg.textContent = "Please enter a valid Owner ID with land record.";
+        msg.className = "message error";
+        return;
+      }
+
+      const otp = document.getElementById("otp").value;
+      if (!otp || !email) {
+        msg.textContent = "Please enter the OTP sent to the owner's email.";
+        msg.className = "message error";
+        return;
+      }
+
+      // Verify OTP
+      const verifyRes = await fetch("/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email:email, otp })
+      });
+      const verifyData = await verifyRes.json();
+
+      if (!verifyRes.ok) {
+        msg.textContent = verifyData.message || "OTP verification failed.";
+        msg.className = "message error";
+        return;
+      }
+
+      // Proceed to submit the form if OTP is verified
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+      const res = await fetch("/update-case", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+
+      if (res.ok) {
+        msg.textContent = result.message;
+        msg.className = "message success";
+      } else {
+        msg.textContent = result.message || "An error occurred.";
+        msg.className = "message error";
+      }
+    });
+  </script>
+</body>
+</html>

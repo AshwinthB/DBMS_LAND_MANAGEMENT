@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Login</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        /* Professional, clean login page */
+        
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .container {
+            background: #ffffff;
+            padding: 2.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            text-align: center;
+            transition: box-shadow 0.3s;
+        }
+        
+        .container:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        h2 {
+            margin-bottom: 1.5rem;
+            color: #333333;
+            font-size: 1.8rem;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.9rem;
+            margin: 0.7rem 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+        
+        button {
+            margin-top: 1.2rem;
+            width: 100%;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 8px;
+            background-color: #4a90e2;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #4178c0;
+        }
+        
+        p {
+            margin-top: 1rem;
+            color: #666666;
+            font-size: 0.9rem;
+        }
+        
+        a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        #login-message {
+            margin-top: 1rem;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .welcome {
+            font-size: 1.8rem;
+            color: #333333;
+            position: absolute;
+            top: 8%;
+            text-align: center;
+            width: 100%;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        </style>
+        
+</head>
+<body>
+    <div class="welcome">Welcome to Land Management System</div>
+    <div class="container">
+        <h2>Login</h2>
+        <input type="text" id="login-username" placeholder="Username" />
+        <input type="password" id="login-password" placeholder="Password" />
+        <button type="button" onclick="login()">Login</button>
+        <p>Don't have an account? <a href="register.html">Register</a></p>
+        <p id="login-message"></p>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

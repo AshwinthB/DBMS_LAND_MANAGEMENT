@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Register</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div class="container">
+        <h2>Register</h2>
+        <input type="text" id="name" placeholder="Name" />
+<select id="gender">
+    <option disabled selected>Gender</option>
+    <option>Male</option>
+    <option>Female</option>
+    <option>Other</option>
+</select>
+<input type="email" id="email" placeholder="Email" />
+<button onclick="sendOtp()">Send OTP</button>
+<input type="text" id="otp" placeholder="Enter OTP" />
+<input type="password" id="password" placeholder="Password" />
+<input type="text" id="mobile" placeholder="Mobile" />
+<button onclick="register()">Register</button>
+<p id="register-message"></p>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
